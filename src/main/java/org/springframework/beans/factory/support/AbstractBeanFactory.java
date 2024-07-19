@@ -5,6 +5,12 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
+    /**
+     * 如果当前没有创建bean实例，则会创建
+     * @param name
+     * @return
+     * @throws BeansException
+     */
     @Override
     public Object getBean(String name) throws BeansException {
         Object bean = getSingleton(name);

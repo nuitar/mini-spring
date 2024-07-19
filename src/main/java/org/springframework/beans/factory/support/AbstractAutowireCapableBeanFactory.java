@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanReference;
 
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
@@ -39,7 +40,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             for (PropertyValue pv : beanDefinition.getPropertyValues().getPropertyValueList()) {
                 String name = pv.getName();
                 Object value = pv.getValue();
-
+                if (value instanceof BeanReference) {
+                    BeanReference reference = (BeanReference) value;
+                    value = getBean(reference.getBeanName());
+                }
                 BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception ex) {
