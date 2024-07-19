@@ -1,8 +1,10 @@
-package org.springframework.test.ioc;
+package org.springframework.test.ioc.service;
 
-class HelloService {
+public class HelloService {
+
     public String sayHello() {
         System.out.println("hello");
         return "hello";
     }
+
 }
