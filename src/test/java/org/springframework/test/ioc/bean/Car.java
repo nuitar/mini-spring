@@ -1,22 +1,13 @@
 package org.springframework.test.ioc.bean;
 
 public class Car {
-    private String name;
-    private int age;
+    private String brand;
 
-    public int getAge() {
-        return age;
+    public String getBrand() {
+        return brand;
     }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 }
