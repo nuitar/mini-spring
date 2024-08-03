@@ -28,6 +28,16 @@ public class Person {
     public void setCar(Car car) {
         this.car = car;
     }
+
+    public void customInitMethod(){
+        System.out.println("initialize the car by customInitMethod");
+    }
+    public void customDestroyMethod(){
+        System.out.println("destroy the car by customDestroyMethod");
+    }
+
+
+
     @Override
     public String toString() {
         return "Person{" +

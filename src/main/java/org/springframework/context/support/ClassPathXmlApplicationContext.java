@@ -1,4 +1,4 @@
-package org.springframework.beans.factory.context.support;
+package org.springframework.context.support;
 
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
     private String[] configLocations;

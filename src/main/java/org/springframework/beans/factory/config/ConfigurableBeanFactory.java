@@ -9,5 +9,6 @@ public interface ConfigurableBeanFactory extends SingletonBeanRegistry, Hierarch
     BeanDefinition getBeanDefinition(String beanName) throws BeansException;
 
     void preInstantiateSingletons() throws BeansException;
+    void destroySingletons();
 
 }

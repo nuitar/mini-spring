@@ -1,10 +1,10 @@
-package org.springframework.beans.factory.context.support;
+package org.springframework.context.support;
 
 import org.springframework.beans.BeansException;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.beans.factory.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.context.ConfigurableApplicationContext;
 import org.springframework.core.io.DefaultResourceLoader;
 
 import java.util.Map;
@@ -61,4 +61,25 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public abstract ConfigurableListableBeanFactory getBeanFactory();
 
     public abstract void refreshBeanFactory() throws BeansException;
+
+    public void close() {
+        doClose();
+    }
+
+    public void registerShutdownHook() {
+        Thread shudownHook = new Thread() {
+            public void run() {
+                doClose();
+            }
+        };
+        Runtime.getRuntime().addShutdownHook(shudownHook);
+    }
+
+    protected void doClose() {
+        destroyBeans();
+    }
+
+    protected void destroyBeans() {
+        getBeanFactory().destroySingletons();
+    }
 }
