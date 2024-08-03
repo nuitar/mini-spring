@@ -9,6 +9,12 @@ public class BeanDefinition {
 
     private String initMethodName;
     private String destroyMethodName;
+    private static final String SCOPE_SINGLETON = "singleton";
+    private static final String SCOPE_PROTOTYPE = "prototype";
+    private String scope = SCOPE_SINGLETON;
+
+    private boolean singleton = true;
+    private boolean prototype = false;
 
     public BeanDefinition(Class beanClass) {
         this(beanClass, null);
@@ -50,5 +56,19 @@ public class BeanDefinition {
 
     public void setInitMethodName(String initMethodName) {
         this.initMethodName = initMethodName;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
+        this.prototype = SCOPE_PROTOTYPE.equals(scope);
+        this.singleton = SCOPE_SINGLETON.equals(scope);
+    }
+
+    public boolean isSingleton() {
+        return singleton;
+    }
+
+    public boolean isPrototype() {
+        return prototype;
     }
 }
