@@ -2,6 +2,6 @@ package org.springframework.aop;
 
 import java.lang.reflect.Method;
 
-public interface MethodMacher {
+public interface MethodMatcher {
     boolean matches(Method method,Class<?> clazz);
 }

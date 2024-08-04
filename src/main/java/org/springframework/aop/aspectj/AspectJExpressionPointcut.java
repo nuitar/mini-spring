@@ -4,14 +4,14 @@ import org.aspectj.weaver.tools.PointcutExpression;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;
 import org.springframework.aop.ClassFilter;
-import org.springframework.aop.MethodMacher;
+import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.PointCut;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AspectJExpressionPointcut implements ClassFilter, MethodMacher, PointCut {
+public class AspectJExpressionPointcut implements ClassFilter, MethodMatcher, PointCut {
 
     private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<PointcutPrimitive>();
 
@@ -42,7 +42,7 @@ public class AspectJExpressionPointcut implements ClassFilter, MethodMacher, Poi
     }
 
     @Override
-    public MethodMacher getMethodFilter() {
+    public MethodMatcher getMethodMatcher() {
         return this;
     }
 }
