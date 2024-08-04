@@ -6,10 +6,8 @@ import org.springframework.beans.PropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.test.ioc.bean.Car;
-import org.springframework.test.ioc.bean.Person;
-
-import java.util.concurrent.Callable;
+import org.springframework.test.bean.Car;
+import org.springframework.test.bean.Person;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
