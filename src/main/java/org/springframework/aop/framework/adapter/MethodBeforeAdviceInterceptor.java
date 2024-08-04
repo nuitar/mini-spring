@@ -5,23 +5,26 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.BeforeAdvice;
 
 public class MethodBeforeAdviceInterceptor implements MethodInterceptor {
-    private BeforeAdvice beforeAdvice;
+    private BeforeAdvice advice;
 
     public MethodBeforeAdviceInterceptor(BeforeAdvice beforeAdvice) {
-        this.beforeAdvice = beforeAdvice;
+        this.advice = beforeAdvice;
+    }
+
+    public MethodBeforeAdviceInterceptor() {
     }
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        beforeAdvice.before(methodInvocation.getMethod(), methodInvocation.getArguments(), methodInvocation.getThis());
+        advice.before(methodInvocation.getMethod(), methodInvocation.getArguments(), methodInvocation.getThis());
         return methodInvocation.proceed();
     }
 
-    public BeforeAdvice getBeforeAdvice() {
-        return beforeAdvice;
+    public BeforeAdvice getAdvice() {
+        return advice;
     }
 
-    public void setBeforeAdvice(BeforeAdvice beforeAdvice) {
-        this.beforeAdvice = beforeAdvice;
+    public void setAdvice(BeforeAdvice beforeAdvice) {
+        this.advice = beforeAdvice;
     }
 }
