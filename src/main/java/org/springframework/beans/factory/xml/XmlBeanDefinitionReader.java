@@ -1,34 +1,39 @@
 package org.springframework.beans.factory.xml;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.XmlUtil;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.support.AbstractBeanDefinitionReader;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
-    private static final String ID_ATTRIBUTE = "id";
-    private static final String NAME_ATTRIBUTE = "name";
-    private static final String VALUE_ATTRIBUTE = "value";
-    private static final String PROPERTY_ATTRIBUTE = "property";
-    private static final String BEAN_ATTRIBUTE = "bean";
-    private static final String CLASS_ATTRIBUTE = "class";
-    private static final String REF_ATTRIBUTE = "ref";
-    private static final String INIT_METHOD_ATTRIBUTE = "init-method";
-    private static final String DESTROY_METHOD_ATTRIBUTE = "destroy-method";
-    private static final String SCOPE_ATTRIBUTE = "scope";
+    public static final String ID_ATTRIBUTE = "id";
+    public static final String NAME_ATTRIBUTE = "name";
+    public static final String VALUE_ATTRIBUTE = "value";
+    public static final String PROPERTY_ATTRIBUTE = "property";
+    public static final String BEAN_ATTRIBUTE = "bean";
+    public static final String CLASS_ATTRIBUTE = "class";
+    public static final String REF_ATTRIBUTE = "ref";
+    public static final String INIT_METHOD_ATTRIBUTE = "init-method";
+    public static final String DESTROY_METHOD_ATTRIBUTE = "destroy-method";
+    public static final String SCOPE_ATTRIBUTE = "scope";
+    public static final String BASE_PACKAGE_ATTRIBUTE = "base-package";
 
+    public static final String COMPONENT_SCAN_ELEMENT = "component-scan";
     public XmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
         super(registry);
     }
@@ -53,27 +58,34 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             } finally {
                 inputStream.close();
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new BeansException("IOException parsing XML document from " + location, ex);
         }
     }
 
-    private void doLoadBeanDefinition(InputStream inputStream) {
-        Document document = XmlUtil.readXML(inputStream);
-        Element root = document.getDocumentElement();
-        NodeList childNodes = root.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            if (!(childNodes.item(i) instanceof Element))
-                continue;
+    private void doLoadBeanDefinition(InputStream inputStream) throws DocumentException {
+        SAXReader reader = new SAXReader();
+        Document document = reader.read(inputStream);
+        Element root = document.getRootElement();
 
-            //获取bean属性
-            Element bean = (Element) childNodes.item(i);
-            String id = bean.getAttribute(ID_ATTRIBUTE);
-            String name = bean.getAttribute(NAME_ATTRIBUTE);
-            String className = bean.getAttribute(CLASS_ATTRIBUTE);
-            String initMethodName = bean.getAttribute(INIT_METHOD_ATTRIBUTE);
-            String destroyMethodName = bean.getAttribute(DESTROY_METHOD_ATTRIBUTE);
-            String scope = bean.getAttribute(SCOPE_ATTRIBUTE);
+        Element componentElement = root.element(COMPONENT_SCAN_ELEMENT);
+        if(componentElement!=null){
+            String scanPath = componentElement.attributeValue(BASE_PACKAGE_ATTRIBUTE);
+            if(StrUtil.isEmpty(scanPath))
+                throw new BeansException("The value of base-package attribute can not be empty or null");
+            scanPackage(scanPath);
+        }
+
+
+        List<Element> beanList = root.elements(BEAN_ATTRIBUTE);
+        for (Element bean:beanList) {
+
+            String id = bean.attributeValue(ID_ATTRIBUTE);
+            String name = bean.attributeValue(NAME_ATTRIBUTE);
+            String className = bean.attributeValue(CLASS_ATTRIBUTE);
+            String initMethodName = bean.attributeValue(INIT_METHOD_ATTRIBUTE);
+            String destroyMethodName = bean.attributeValue(DESTROY_METHOD_ATTRIBUTE);
+            String scope = bean.attributeValue(SCOPE_ATTRIBUTE);
 
             Class<?> clazz = null;
             try {
@@ -92,16 +104,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             beanDefinition.setDestroyMethodName(destroyMethodName);
             if (StrUtil.isNotEmpty(scope))
                 beanDefinition.setScope(scope);
-            // 获取proptery
-            for (int j = 0; j < bean.getChildNodes().getLength(); j++) {
-                if (!(bean.getChildNodes().item(j) instanceof Element)) {
-                    continue;
-                }
 
-                Element property = (Element) bean.getChildNodes().item(j);
-                String propertyName = property.getAttribute(NAME_ATTRIBUTE);
-                String val = property.getAttribute(VALUE_ATTRIBUTE);
-                String refAttribute = property.getAttribute(REF_ATTRIBUTE);
+            List<Element> propertyList = bean.elements(PROPERTY_ATTRIBUTE);
+            // 获取proptery
+            for (Element property:propertyList) {
+                String propertyName = property.attributeValue(NAME_ATTRIBUTE);
+                String val = property.attributeValue(VALUE_ATTRIBUTE);
+                String refAttribute = property.attributeValue(REF_ATTRIBUTE);
 
                 if (StrUtil.isEmpty(propertyName)) {
                     throw new BeansException("The name attribute cannot be null or empty");
@@ -121,5 +130,12 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             getRegistry().registerBeanDefinition(beanName, beanDefinition);
 
         }
+    }
+
+    private void scanPackage(String scanPath) {
+        String[] basePackages = StrUtil.splitToArray(scanPath, ',');
+
+        ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(getRegistry());
+        scanner.doScan(basePackages);
     }
 }
